@@ -15,6 +15,12 @@ namespace RepoLayer.Repositories.Measurements
     {
         private HttpClient httpClient;
 
+        private JsonSerializerSettings mysettings = new JsonSerializerSettings
+        {
+            NullValueHandling = NullValueHandling.Ignore,
+            MissingMemberHandling = MissingMemberHandling.Ignore
+        };
+
         public GenericRepository(HttpClient client)
         {
             httpClient = client;
@@ -32,7 +38,7 @@ namespace RepoLayer.Repositories.Measurements
                 if (responseMessage.IsSuccessStatusCode)
                 {
                     myJsonResponse = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-                    var myDeserializedClass = JsonConvert.DeserializeObject<T>(myJsonResponse);
+                    var myDeserializedClass = JsonConvert.DeserializeObject<T>(myJsonResponse, mysettings);
 
                     return myDeserializedClass;
                 }
