@@ -1,12 +1,35 @@
-﻿@page "/Embeded/Measurements"
+﻿@inject IMeasurementService _service
+@inject HttpClient Http
+@page "/Embeded/Measurements"
 
 <h3>Measurements</h3>
 
+<p>
+    @mystring
+</p>
+
+<div>
+    @foreach (var item in Mymeasurements)
+    {
+        <p>
+            @item.Humidity
+        </p>
+    }
+</div>
+
 @code {
+
+    public Exception MyProperty { get; set; }
+
+    public string mystring { get; set; }
+
+    IEnumerable<Measurement> Mymeasurements { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        
+        Mymeasurements = new List<Measurement>();
+        Mymeasurements = await _service.GetMeasurementsAsync();
+        mystring = "oi";
     }
 
 }

@@ -15,9 +15,9 @@ namespace RepoLayer.Repositories.Measurements
     {
         private HttpClient httpClient;
 
-        public GenericRepository()
+        public GenericRepository(HttpClient client)
         {
-            httpClient = new HttpClient();
+            httpClient = client;
         }
 
         #region GET
@@ -25,7 +25,6 @@ namespace RepoLayer.Repositories.Measurements
         {
             try
             {
-                ConfigureHttpClient(authToken);
                 string myJsonResponse = string.Empty;
 
                 HttpResponseMessage responseMessage = await httpClient.GetAsync(uri);

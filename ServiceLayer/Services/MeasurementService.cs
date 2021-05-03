@@ -1,67 +1,88 @@
-﻿using System;
+﻿using RepoLayer.Constants;
+using RepoLayer.Models;
+using RepoLayer.Repositories.Measurements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TinyIoC;
 
 namespace ServiceLayer.Services
 {
     public class MeasurementService : IMeasurementService
     {
-        private readonly ApiDBContext _context;
+        private readonly IGenericRepository _repo;
 
-        public MeasurementService(ApiDBContext context)
+        public MeasurementService(IGenericRepository repo)
         {
-            _context = context;
+            _repo = repo;
         }
 
-        /// <summary>
-        /// Returns a true/false if there was any changes to the DB.
-        /// </summary>
-        /// <returns>True / false</returns>
-        private async Task<bool> SaveDbAsync()
+        public async Task<IList<Measurement>> GetMeasurementsAsync()
         {
-            if (await _context.SaveChangesAsync() < 0)
-                return true;
-            else
-                return false;
-        }
+            UriBuilder builder = new UriBuilder(APIConstants.BaseApiUrl)
+            {
+                Path = APIConstants.MeasurementEndPoint
+            };
 
-        public async Task<bool> AddMeasurementAsync(Measurement measurement)
-        {
-            _context.Measurements.Add(measurement);
+            string urlkey = builder.ToString();
 
-            return await SaveDbAsync();
-        }
+            Root ThingSpeak = await _repo.GetAsync<Root>(urlkey);
 
-        public async Task<bool> DeleteMeasurementAsync(Guid Id)
-        {
-            Measurement measurement =  _context.Measurements.Where(m => m.ID == Id).FirstOrDefault();
-            _context.Measurements.Remove(measurement);
+            List<Measurement> measurements = new List<Measurement>();
 
-            return await SaveDbAsync();
+            foreach (var item in ThingSpeak.feeds)
+            {
+                measurements.Add(new Measurement
+                {
+                    Date = item.created_at,
+                    Humidity = item.field2,
+                    Temperatur = item.field1
+                });
+            }
+
+            return measurements;
         }
 
         public async Task<Measurement> GetMeasurementAsync(Guid Id)
         {
-            return await _context.Measurements.Where(m => m.ID == Id).FirstOrDefaultAsync();
+            UriBuilder builder = new UriBuilder(APIConstants.BaseApiUrl)
+            {
+                Path = $"{APIConstants.MeasurementEndPoint}/{Id.ToString()}"
+            };
+            return await _repo.GetAsync<Measurement>(builder.ToString());
         }
 
-        public async Task<IEnumerable<Measurement>> GetMeasurementsAsync()
+        public async Task<bool> AddMeasurementAsync(Measurement measurement)
         {
-            return await _context.Measurements.ToListAsync<Measurement>();
+            UriBuilder builder = new UriBuilder(APIConstants.BaseApiUrl)
+            {
+                Path = APIConstants.MeasurementEndPoint
+            };
+            await _repo.PostAsync(builder.ToString(), measurement);
+            return true;
         }
 
         public async Task<bool> UpdateMeasurementAsync(Measurement measurement)
         {
-            _context.Measurements.Update(measurement);
-
-            return await SaveDbAsync();
+            UriBuilder builder = new UriBuilder(APIConstants.BaseApiUrl)
+            {
+                Path = $"{APIConstants.MeasurementEndPoint}/{measurement.ID.ToString()}"
+            };
+            await _repo.PutAsync(builder.ToString(), measurement);
+            return true;
         }
 
-        public async Task<bool> MeasurementExists(Guid id)
+
+        public async Task<bool> DeleteMeasurementAsync(Guid Id)
         {
-            return await _context.Measurements.AnyAsync(m => m.ID == id);
+            UriBuilder builder = new UriBuilder(APIConstants.BaseApiUrl)
+            {
+                Path = $"{APIConstants.MeasurementEndPoint}/{Id.ToString()}"
+            };
+            await _repo.DeleteAsync(builder.ToString());
+            return true;
         }
     }
 }
