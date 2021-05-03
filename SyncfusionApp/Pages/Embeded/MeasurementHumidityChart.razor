@@ -1,0 +1,26 @@
+﻿@inject IMeasurementService _service
+@inject HttpClient Http
+@using Syncfusion.Blazor.Charts
+
+@*https://blazor.syncfusion.com/demos/*@
+<div class="container-fluid">
+    <SfChart>
+        <ChartPrimaryXAxis LabelRotation="90" Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.Category" />
+
+        <ChartPrimaryYAxis Title="Humidity" LabelFormat="{value}%" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Minimum="10" />
+        <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+        <ChartSeriesCollection>
+            <ChartSeries DataSource="Mymeasurements" XName="Date" YName="Humidity">
+                <ChartMarker Visible="true" Height="10" Width="10">
+                </ChartMarker>
+            </ChartSeries>
+        </ChartSeriesCollection>
+    </SfChart>
+</div>
+
+@code {
+
+    [Parameter]
+    public IEnumerable<Measurement> Mymeasurements { get; set; }
+
+}

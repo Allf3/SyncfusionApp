@@ -1,7 +1,36 @@
-﻿@page "/"
+﻿@inject IMeasurementService _service
+@inject HttpClient Http
+@using Syncfusion.Blazor.Charts
+@using Syncfusion.Blazor.Layouts
+@page "/"
 
-<h1>Hello, world!</h1>
+<SfDashboardLayout CellSpacing="@(new double[]{20 ,20 })" Columns="5">
+    <DashboardLayoutPanels>
+        <DashboardLayoutPanel>
+            <ContentTemplate><div>0</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel SizeX=2 SizeY=2 Column=1>
+            <ContentTemplate><div>1</div></ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel SizeY=2 Column=3>
+            <ContentTemplate>
+                <SyncfusionApp.Pages.Embeded.MeasurementTemperaturChart Mymeasurements="Indexmeasurements"/>
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel Row=1>
+            <ContentTemplate>
+                <SyncfusionApp.Pages.Embeded.MeasurementHumidityChart Mymeasurements="Indexmeasurements"/>
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+    </DashboardLayoutPanels>
+</SfDashboardLayout>
 
-Welcome to your new app.
+@code{
+    IEnumerable<Measurement> Indexmeasurements { get; set; }
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    protected override async Task OnInitializedAsync()
+    {
+        Indexmeasurements = new List<Measurement>();
+        Indexmeasurements = await _service.GetMeasurementsAsync();
+    }
+}
