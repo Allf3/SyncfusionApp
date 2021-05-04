@@ -27,6 +27,10 @@ app {
 }
 
 .main {
+    background-image: url(../Images/Backgrounds/pexels-sam-willis-1166991.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     flex: 1;
 }
 

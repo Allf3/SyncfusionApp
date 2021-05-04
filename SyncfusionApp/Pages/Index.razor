@@ -1,36 +1,56 @@
 ﻿@inject IMeasurementService _service
 @inject HttpClient Http
-@using Syncfusion.Blazor.Charts
 @using Syncfusion.Blazor.Layouts
 @page "/"
 
-<SfDashboardLayout CellSpacing="@(new double[]{20 ,20 })" Columns="5">
+<SfDashboardLayout CellSpacing="@(new double[]{20 ,20 })" Columns="5" MediaQuery="max-width:100%">
     <DashboardLayoutPanels>
-        <DashboardLayoutPanel>
-            <ContentTemplate><div>0</div></ContentTemplate>
-        </DashboardLayoutPanel>
-        <DashboardLayoutPanel SizeX=2 SizeY=2 Column=1>
-            <ContentTemplate><div>1</div></ContentTemplate>
-        </DashboardLayoutPanel>
-        <DashboardLayoutPanel SizeY=2 Column=3>
+        <DashboardLayoutPanel SizeX="2">
             <ContentTemplate>
-                <SyncfusionApp.Pages.Embeded.MeasurementTemperaturChart Mymeasurements="Indexmeasurements"/>
+                <SyncfusionApp.Pages.Embeded.MeasurementTemperaturChart Mymeasurements="Indexmeasurements" />
             </ContentTemplate>
         </DashboardLayoutPanel>
-        <DashboardLayoutPanel Row=1>
+        <DashboardLayoutPanel SizeX="2" Column="2">
             <ContentTemplate>
-                <SyncfusionApp.Pages.Embeded.MeasurementHumidityChart Mymeasurements="Indexmeasurements"/>
+                <SyncfusionApp.Pages.Embeded.MeasurementHumidityChart Mymeasurements="Indexmeasurements" />
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel SizeX="2" Row="1">
+            <ContentTemplate>
+                <div>
+                    <SfDateRangePicker TValue="DateTime?" StartDate="@forsteDate" EndDate="@sidsteDate">
+                        <DateRangePickerEvents TValue="DateTime?" ValueChange="@onChangeRange"></DateRangePickerEvents>
+                    </SfDateRangePicker>
+                </div>
+            </ContentTemplate>
+        </DashboardLayoutPanel>
+        <DashboardLayoutPanel SizeX="2" Column="2" Row="1">
+            <ContentTemplate>
+                <div>
+                    New Row
+                </div>
             </ContentTemplate>
         </DashboardLayoutPanel>
     </DashboardLayoutPanels>
 </SfDashboardLayout>
 
 @code{
+
+    public DateTime forsteDate { get; set; } = new DateTime();
+
+    public DateTime sidsteDate { get; set; } = new DateTime();
+
     IEnumerable<Measurement> Indexmeasurements { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Indexmeasurements = new List<Measurement>();
         Indexmeasurements = await _service.GetMeasurementsAsync();
+    }
+
+    private void onChangeRange(RangePickerEventArgs<DateTime?> args)
+    {
+        forsteDate = args.StartDate.Value;
+        sidsteDate = args.EndDate.Value;
     }
 }

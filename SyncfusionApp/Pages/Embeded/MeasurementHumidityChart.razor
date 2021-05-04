@@ -3,9 +3,9 @@
 @using Syncfusion.Blazor.Charts
 
 @*https://blazor.syncfusion.com/demos/*@
-<div class="container-fluid">
+<div>
     <SfChart>
-        <ChartPrimaryXAxis LabelRotation="90" Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.Category" />
+        <ChartPrimaryXAxis LabelRotation="90" Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.DateTimeCategory" />
 
         <ChartPrimaryYAxis Title="Humidity" LabelFormat="{value}%" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Minimum="10" />
         <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
