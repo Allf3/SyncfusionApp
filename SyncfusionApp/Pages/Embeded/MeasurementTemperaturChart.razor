@@ -5,9 +5,17 @@
 @*https://blazor.syncfusion.com/demos/*@
 <div>
     <SfChart>
-        <ChartPrimaryXAxis LabelRotation="90" Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.Category" />
+        <ChartPrimaryXAxis LabelRotation="90" Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.DateTimeCategory" />
 
-        <ChartPrimaryYAxis Title="Temperatur" LabelFormat="{value}°C" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Minimum="10" />
+        <ChartPrimaryYAxis Title="Temperatur" LabelFormat="{value}°C" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Minimum="10">
+            <ChartStriplines>
+                <ChartStripline Start="@TempAVG" Text="@TempString" HorizontalAlignment="Anchor.End" VerticalAlignment="Anchor.End" SizeType="SizeType.Pixel" DashArray="3,3" Size="1" Color="#D93237">
+                    <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+                    <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+                    <ChartStriplineTextStyle Color="#D93237" Size="14px" FontWeight="500" FontFamily="Roboto"></ChartStriplineTextStyle>
+                </ChartStripline>
+            </ChartStriplines>
+        </ChartPrimaryYAxis>
         <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
         <ChartSeriesCollection>
             <ChartSeries DataSource="Mymeasurements" XName="Date" YName="Temperatur">
@@ -25,4 +33,18 @@
     [Parameter]
     public IEnumerable<Measurement> Mymeasurements { get; set; }
 
+    [Parameter]
+    public float TempAVG { get; set; }
+
+    public string TempString = "";
+
+    protected override void OnParametersSet()
+    {
+        if (Mymeasurements.Count() > 0)
+        {
+            TempString = $"Average Temp: {TempAVG.ToString("0.00")}°C";
+        }
+
+        base.OnParametersSet();
+    }
 }

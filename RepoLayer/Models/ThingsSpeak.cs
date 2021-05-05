@@ -22,8 +22,8 @@ namespace RepoLayer.Models
     {
         public DateTime created_at { get; set; }
         public int entry_id { get; set; }
-        public float field1 { get; set; }
-        public float field2 { get; set; }
+        public string field1 { get; set; }
+        public string field2 { get; set; }
     }
 
     public class Root

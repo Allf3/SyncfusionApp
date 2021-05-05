@@ -34,17 +34,22 @@ namespace ServiceLayer.Services
 
             foreach (var item in ThingSpeak.feeds)
             {
-                if (item.entry_id > 0)
+                try
                 {
-                    measurements.Add(new Measurement
+                    if (item.entry_id > 0)
                     {
-                        Date = item.created_at,
-                        ID = item.entry_id,
-                        Humidity = item.field2,
-                        Temperatur = item.field1
-                    });
+                        measurements.Add(new Measurement
+                        {
+                            Date = item.created_at,
+                            ID = item.entry_id,
+                            Humidity = float.Parse(item.field2),
+                            Temperatur = float.Parse(item.field1)
+                        });
+                    }
                 }
-
+                catch (Exception)
+                {
+                }
             }
 
             return measurements;

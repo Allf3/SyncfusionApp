@@ -7,7 +7,15 @@
     <SfChart>
         <ChartPrimaryXAxis LabelRotation="90" Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.DateTimeCategory" />
 
-        <ChartPrimaryYAxis Title="Humidity" LabelFormat="{value}%" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Minimum="10" />
+        <ChartPrimaryYAxis Title="Humidity" LabelFormat="{value}%" ValueType="Syncfusion.Blazor.Charts.ValueType.Double" Minimum="10">
+            <ChartStriplines>
+                <ChartStripline Start="@AVGHumidity" Text="@AVGHumidityString" HorizontalAlignment="Anchor.End" VerticalAlignment="Anchor.End" SizeType="SizeType.Pixel" DashArray="3,3" Size="1" Color="#D93237">
+                    <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
+                    <ChartAxisLineStyle Width="0"></ChartAxisLineStyle>
+                    <ChartStriplineTextStyle Color="#D93237" Size="14px" FontWeight="500" FontFamily="Roboto"></ChartStriplineTextStyle>
+                </ChartStripline>
+            </ChartStriplines>
+        </ChartPrimaryYAxis>
         <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
         <ChartSeriesCollection>
             <ChartSeries DataSource="Mymeasurements" XName="Date" YName="Humidity">
@@ -20,7 +28,22 @@
 
 @code {
 
+
     [Parameter]
     public IEnumerable<Measurement> Mymeasurements { get; set; }
+
+    [Parameter]
+    public float AVGHumidity { get; set; }
+
+    public string AVGHumidityString = "";
+
+    protected override void OnParametersSet()
+    {
+        if (Mymeasurements.Count() > 0)
+        {
+            AVGHumidityString = $"Average Humidity: {AVGHumidity.ToString("0.00")}%";
+            base.OnParametersSet();
+        }
+    }
 
 }

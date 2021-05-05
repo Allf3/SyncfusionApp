@@ -121,6 +121,22 @@ app {
     color: red;
 }
 
+#Temperaturbox {
+    text-align: center;
+}
+
+#Humiditybox {
+    text-align: center;
+}
+
+#Temperaturbox .container .col-12{
+    text-align-last: justify;
+}
+
+#Humiditybox .container .col-12 {
+    text-align-last: justify;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;

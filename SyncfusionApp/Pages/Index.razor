@@ -1,56 +1,113 @@
 ﻿@inject IMeasurementService _service
 @inject HttpClient Http
 @using Syncfusion.Blazor.Layouts
+@using Syncfusion.Blazor.Calendars
 @page "/"
 
-<SfDashboardLayout CellSpacing="@(new double[]{20 ,20 })" Columns="5" MediaQuery="max-width:100%">
-    <DashboardLayoutPanels>
-        <DashboardLayoutPanel SizeX="2">
-            <ContentTemplate>
-                <SyncfusionApp.Pages.Embeded.MeasurementTemperaturChart Mymeasurements="Indexmeasurements" />
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-        <DashboardLayoutPanel SizeX="2" Column="2">
-            <ContentTemplate>
-                <SyncfusionApp.Pages.Embeded.MeasurementHumidityChart Mymeasurements="Indexmeasurements" />
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-        <DashboardLayoutPanel SizeX="2" Row="1">
-            <ContentTemplate>
-                <div>
-                    <SfDateRangePicker TValue="DateTime?" StartDate="@forsteDate" EndDate="@sidsteDate">
-                        <DateRangePickerEvents TValue="DateTime?" ValueChange="@onChangeRange"></DateRangePickerEvents>
-                    </SfDateRangePicker>
-                </div>
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-        <DashboardLayoutPanel SizeX="2" Column="2" Row="1">
-            <ContentTemplate>
-                <div>
-                    New Row
-                </div>
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-    </DashboardLayoutPanels>
-</SfDashboardLayout>
+<div class="control-section">
+    <SfDashboardLayout CellSpacing="@(new double[]{20 ,20 })" Columns="6" MediaQuery="max-width:100%">
+        <DashboardLayoutPanels>
+            <DashboardLayoutPanel SizeX="5" SizeY="2" Column="0">
+                <ContentTemplate>
+                    <SyncfusionApp.Pages.Embeded.MeasurementTemperaturChart Mymeasurements="Indexmeasurements" TempAVG="AVGTempIndex" />
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+            <DashboardLayoutPanel SizeX="5" SizeY="2" Column="0">
+                <ContentTemplate>
+                    <SyncfusionApp.Pages.Embeded.MeasurementHumidityChart Mymeasurements="Indexmeasurements" AVGHumidity="AVGHumidityIndex" />
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+
+            <DashboardLayoutPanel Column="6" Row="1" SizeX="1" SizeY="1">
+                <ContentTemplate>
+                    <div class="container">
+                        <div class="row">
+                            <SfDateRangePicker TValue="DateTime?" StartDate="@forsteDate" EndDate="@DateTime.Now">
+                                <DateRangePickerEvents TValue="DateTime?" ValueChange="@onChangeRange"></DateRangePickerEvents>
+                            </SfDateRangePicker>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <DashboardLayoutPanel Column="6" Row="2" SizeX="1" SizeY="1" Id="Temperaturbox">
+                <ContentTemplate>
+                    <div class="container">
+                        <h4><span class="oi oi-rain" aria-hidden="true"></span> Temperatur</h4>
+                        <div class="col-12">
+                            <p>
+                                Average Temperatur: <strong>@AVGTempIndex.ToString("0.00")°C</strong> 
+                            </p>
+                            <hr />
+                            <p>
+                                Highest Temperatur: <strong>@Indexmeasurements.Max(x => x.Temperatur).ToString("0.00")°C</strong> 
+                            </p>
+                            <hr />
+                            <p>
+                                Lowest Temperatur: <strong>@Indexmeasurements.Min(x => x.Temperatur).ToString("0.00")°C</strong> 
+                            </p>
+                        </div>
+                    </div>
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+            <DashboardLayoutPanel Column="6" Row="3" SizeX="1" SizeY="1" Id="Humiditybox">
+                <ContentTemplate>
+                    <div class="container">
+                        <h4><span class="oi oi-cloud" aria-hidden="true"></span> Humidity</h4>
+                        <div class="col-12">
+                            <p>
+                               Average Humidity: <strong>@AVGHumidityIndex.ToString("0.00")%</strong> 
+                            </p>
+                            <hr />
+                            <p>
+                                Highest Humidity: <strong>@Indexmeasurements.Max(x => x.Humidity).ToString("0.00")%</strong> 
+                            </p>
+                            <hr />
+                            <p>
+                                Lowest Humidity: <strong>@Indexmeasurements.Min(x => x.Humidity).ToString("0.00")%</strong> 
+                            </p>
+                        </div>
+                    </div>        
+                </ContentTemplate>
+            </DashboardLayoutPanel>
+
+        </DashboardLayoutPanels>
+    </SfDashboardLayout>
+</div>
+
 
 @code{
 
     public DateTime forsteDate { get; set; } = new DateTime();
 
-    public DateTime sidsteDate { get; set; } = new DateTime();
+    public float AVGTempIndex { get; set; }
 
-    IEnumerable<Measurement> Indexmeasurements { get; set; }
+    public float AVGHumidityIndex { get; set; }
+
+    IList<Measurement> Indexmeasurements { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Indexmeasurements = new List<Measurement>();
         Indexmeasurements = await _service.GetMeasurementsAsync();
+        AVGTempIndex = Indexmeasurements.Average(x => x.Temperatur);
+        AVGHumidityIndex = Indexmeasurements.Average(x => x.Humidity);
     }
 
-    private void onChangeRange(RangePickerEventArgs<DateTime?> args)
+    private async void onChangeRange(RangePickerEventArgs<DateTime?> args)
     {
         forsteDate = args.StartDate.Value;
-        sidsteDate = args.EndDate.Value;
+        Indexmeasurements = await _service.GetMeasurementsAsync();
+        Indexmeasurements = await Filtre(forsteDate, args.EndDate.Value);
+        AVGTempIndex = Indexmeasurements.Average(x => x.Temperatur);
+        AVGHumidityIndex = Indexmeasurements.Average(x => x.Humidity);
+        StateHasChanged();
+    }
+
+    private async Task<List<Measurement>> Filtre(DateTime STDate, DateTime EndDate)
+    {
+        return Indexmeasurements.Where(c => c.Date >= STDate && c.Date <= EndDate.AddDays(1)).ToList();
     }
 }
